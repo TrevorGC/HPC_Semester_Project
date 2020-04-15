@@ -14,8 +14,6 @@ class genetic_math
 private:
 	const string GENES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890, .-;:_!\"#%&/()=?@${[]}";
 	
-
-	//here are some changes
 public:
 	genetic_math();
 	int random_num(int start, int end);

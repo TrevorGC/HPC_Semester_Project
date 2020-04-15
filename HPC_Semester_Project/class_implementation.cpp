@@ -2,20 +2,13 @@
 #include "individual.h"
 #include <iostream>
 
-
-
-
-
-
-
-
 // Math constructor
 genetic_math::genetic_math()
 {
 	return;
 }
 
-// Function to generate random numbers in given range 
+// Function to generate random numbers in given range.  This is used to select a random character from the gene pool
 int genetic_math::random_num(int start, int end)
 {
 	int range = (end - start) + 1;
@@ -23,7 +16,7 @@ int genetic_math::random_num(int start, int end)
 	return random_int;
 }
 
-// Create random genes for mutation 
+// Create random genes for mutation.  Using hte random numbers to select a gene from the gene pool and add it to the current gnome.
 char genetic_math::mutated_genes()
 {
 	int len = GENES.size();
@@ -31,7 +24,7 @@ char genetic_math::mutated_genes()
 	return GENES[r];
 }
 
-// create chromosome or string of genes 
+// Create chromosome or string of genes.  Creating a gnome from mutated genes.
 string genetic_math::create_gnome(string TARGET)
 {
 	int len = TARGET.size();
@@ -40,13 +33,6 @@ string genetic_math::create_gnome(string TARGET)
 		gnome += mutated_genes();
 	return gnome;
 }
-
-
-
-
-
-
-
 
 // Individual constructor
 individual::individual(string chromosome, string TARGET)
@@ -58,11 +44,11 @@ individual::individual(string chromosome, string TARGET)
 // Perform mating and produce new offspring 
 individual individual::mate(individual parent2, string TARGET)
 {
+	// Used for getting math functions
+	genetic_math mathOp = genetic_math();
+
 	// chromosome for offspring 
 	string child_chromosome = "";
-
-	// math operator
-	genetic_math mathOp = genetic_math();
 
 	int len = chromosome.size();
 	for (int i = 0; i < len; i++)
@@ -70,24 +56,26 @@ individual individual::mate(individual parent2, string TARGET)
 		// random probability 
 		float p = mathOp.random_num(0, 100) / 100;
 
-		// if prob is less than 0.45, insert gene 
-		// from parent 1 
+		// if prob is less than 0.45, insert gene from parent 1 
 		if (p < 0.45)
+		{
 			child_chromosome += chromosome[i];
+		}
 
-		// if prob is between 0.45 and 0.90, insert 
-		// gene from parent 2 
+		// if prob is between 0.45 and 0.90, insert gene from parent 2 
 		else if (p < 0.90)
+		{
 			child_chromosome += parent2.chromosome[i];
+		}
 
-		// otherwise insert random gene(mutate), 
-		// for maintaining diversity 
+		// otherwise insert random gene(mutate), for maintaining diversity 
 		else
+		{
 			child_chromosome += mathOp.mutated_genes();
+		}
 	}
 
-	// create new Individual(offspring) using 
-	// generated chromosome for offspring 
+	// create new Individual(offspring) using generated chromosome for offspring 
 	return individual(child_chromosome, TARGET);
 }
 
