@@ -2,6 +2,8 @@
 #include "individual.h"
 #include <iostream>
 
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // Math constructor
 genetic_math::genetic_math()
 {
@@ -16,6 +18,14 @@ int genetic_math::random_num(int start, int end)
 	return random_int;
 }
 
+// Function to generate random numbers in given range.  This is used to select a random character from the gene pool
+void genetic_math::random_num_threaded(int start, int end, int& num)
+{
+	int range = (end - start) + 1;
+	int random_int = start + (rand() % range);
+	num = random_int;
+}
+
 // Create random genes for mutation.  Using hte random numbers to select a gene from the gene pool and add it to the current gnome.
 char genetic_math::mutated_genes()
 {
@@ -25,13 +35,21 @@ char genetic_math::mutated_genes()
 }
 
 // Create chromosome or string of genes.  Creating a gnome from mutated genes.
-string genetic_math::create_gnome(string TARGET)
+void genetic_math::create_gnome(string TARGET, string& returnGnome)
 {
 	int len = TARGET.size();
 	string gnome = "";
 	for (int i = 0; i < len; i++)
 		gnome += mutated_genes();
-	return gnome;
+	returnGnome = gnome;
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// Individual constructor
+individual::individual()
+{
+	return;
 }
 
 // Individual constructor
@@ -42,7 +60,7 @@ individual::individual(string chromosome, string TARGET)
 }
 
 // Perform mating and produce new offspring 
-individual individual::mate(individual parent2, string TARGET)
+void individual::mate(individual parent2, string TARGET, individual& offspring)
 {
 	// Used for getting math functions
 	genetic_math mathOp = genetic_math();
@@ -76,7 +94,7 @@ individual individual::mate(individual parent2, string TARGET)
 	}
 
 	// create new Individual(offspring) using generated chromosome for offspring 
-	return individual(child_chromosome, TARGET);
+	offspring = individual(child_chromosome, TARGET);
 }
 
 // Calculate fittness score, it is the number of characters in string which differ from target string.

@@ -11,14 +11,15 @@ using namespace std;
 
 class genetic_math
 {
-private:
-	const string GENES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890, .-;:_!\"#%&/()=?@${[]}";
+	private:
+		const string GENES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890, .-;:_!\"#%&/()=?@${[]}";
 	
-public:
-	genetic_math();
-	int random_num(int start, int end);
-	char mutated_genes();
-	string create_gnome(string TARGET);
+	public:
+		genetic_math();
+		int random_num(int start, int end);
+		void random_num_threaded(int start, int end, int& num);
+		char mutated_genes();
+		void create_gnome(string TARGET, string& returnGnome);
 };
 
 #endif
