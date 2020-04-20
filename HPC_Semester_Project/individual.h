@@ -11,17 +11,16 @@ using namespace std;
 
 class individual
 {
-	private:
-		string chromosome;
-		int fitness;
+private:
+	string chromosome;
+	int fitness;
 
-	public:
-		individual();
-		individual(string chromosome, string TARGET);
-		void mate(individual parent2, string TARGET, individual& offspring);
-		int cal_fitness(string TARGET);
-		string getChromosome();
-		int getFitness();
+public:
+	individual(string chromosome, string TARGET);
+	individual mate(individual parent2, string TARGET);
+	int cal_fitness(string TARGET);
+	string getChromosome();
+	int getFitness();
 };
 
 #endif

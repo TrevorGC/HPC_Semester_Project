@@ -1,8 +1,10 @@
 #include "genetic_math.h"
 #include "individual.h"
+#include <thread>
+#include <vector>
 #include <iostream>
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Math constructor
 genetic_math::genetic_math()
@@ -10,20 +12,106 @@ genetic_math::genetic_math()
 	return;
 }
 
+
+
+
+
+
+
+
+
+
+
+// Create initial popluation - threaded
+vector<individual> genetic_math::create_pop_threaded(int population_size, string TARGET)
+{
+	vector<individual> population;
+	genetic_math mathOp = genetic_math();
+
+	string gnomeOne, gnomeTwo;
+
+	thread threadOne(&genetic_math::create_gnome_threaded, mathOp, TARGET, std::ref(gnomeOne));
+	thread threadTwo(&genetic_math::create_gnome_threaded, mathOp, TARGET, std::ref(gnomeTwo));
+
+
+	threadOne.join();
+	threadTwo.join();
+
+
+	while (true)
+	{
+		individual individualOne(gnomeOne, TARGET), individualTwo(gnomeTwo, TARGET);
+
+		population.push_back(individualOne);
+		population.push_back(individualTwo);
+
+
+		if (population_size == 2)
+		{
+			break;
+		}
+		else
+		{
+			population_size = population_size - 2;
+		}
+	}
+
+	return population;
+}
+
+// Create chromosome or string of genes.  Creating a gnome from mutated genes. - threaded ver
+void genetic_math::create_gnome_threaded(string TARGET, string& returnGnome)
+{
+	int len = TARGET.size();
+	string gnome = "";
+	for (int i = 0; i < len; i++)
+		gnome += mutated_genes();
+	returnGnome = gnome;
+}
+
+
+
+// Create initial popluation - unthreaded
+vector<individual> genetic_math::create_pop_unthreaded(int population_size, string TARGET)
+{
+	vector<individual> population;
+	genetic_math mathOp = genetic_math();
+
+	for (int i = 0; i < population_size; i++)
+	{
+		string gnome = mathOp.create_gnome_unthreaded(TARGET);
+		population.push_back(individual(gnome, TARGET));
+	}
+
+	return population;
+}
+
+// Create chromosome or string of genes.  Creating a gnome from mutated genes. - unthreaded ver
+string genetic_math::create_gnome_unthreaded(string TARGET)
+{
+	int len = TARGET.size();
+	string gnome = "";
+	for (int i = 0; i < len; i++)
+		gnome += mutated_genes();
+	return gnome;
+}
+
+
+
+
+
+
+
+
+
+
+
 // Function to generate random numbers in given range.  This is used to select a random character from the gene pool
 int genetic_math::random_num(int start, int end)
 {
 	int range = (end - start) + 1;
 	int random_int = start + (rand() % range);
 	return random_int;
-}
-
-// Function to generate random numbers in given range.  This is used to select a random character from the gene pool
-void genetic_math::random_num_threaded(int start, int end, int& num)
-{
-	int range = (end - start) + 1;
-	int random_int = start + (rand() % range);
-	num = random_int;
 }
 
 // Create random genes for mutation.  Using hte random numbers to select a gene from the gene pool and add it to the current gnome.
@@ -34,23 +122,7 @@ char genetic_math::mutated_genes()
 	return GENES[r];
 }
 
-// Create chromosome or string of genes.  Creating a gnome from mutated genes.
-void genetic_math::create_gnome(string TARGET, string& returnGnome)
-{
-	int len = TARGET.size();
-	string gnome = "";
-	for (int i = 0; i < len; i++)
-		gnome += mutated_genes();
-	returnGnome = gnome;
-}
-
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// Individual constructor
-individual::individual()
-{
-	return;
-}
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Individual constructor
 individual::individual(string chromosome, string TARGET)
@@ -60,7 +132,7 @@ individual::individual(string chromosome, string TARGET)
 }
 
 // Perform mating and produce new offspring 
-void individual::mate(individual parent2, string TARGET, individual& offspring)
+individual individual::mate(individual parent2, string TARGET)
 {
 	// Used for getting math functions
 	genetic_math mathOp = genetic_math();
@@ -94,7 +166,7 @@ void individual::mate(individual parent2, string TARGET, individual& offspring)
 	}
 
 	// create new Individual(offspring) using generated chromosome for offspring 
-	offspring = individual(child_chromosome, TARGET);
+	return individual(child_chromosome, TARGET);
 }
 
 // Calculate fittness score, it is the number of characters in string which differ from target string.
