@@ -7,13 +7,8 @@ using namespace std::chrono;
 using namespace std;
 
 // Number of individuals in each generation 
-#define POPULATION_SIZE 100000
+#define POPULATION_SIZE 1000000 //100000
 
-// Overloading < operator
-bool operator<(individual& ind1, individual& ind2)
-{
-	return ind1.getFitness() < ind2.getFitness();
-}
 
 // Main driver
 int main()
@@ -33,28 +28,35 @@ int main()
 	cout << "Press 0 to compare threaded and unthreaded speeds, press 1 to just run threaded program:  ";
 	cin >> compare;
 
-	/*int POPULATION_SIZE;
-	cout << "Population size?:  ";
-	cin >> POPULATION_SIZE;*/
-
-	// current generation 
-	int generation = 0;
-
-
 	if (compare == 0)
 	{
-		// Population of individuals
 		auto startUnthreaded = high_resolution_clock::now();
 		vector<individual> populationUnthreaded = mathOp.create_pop_unthreaded(POPULATION_SIZE, TARGET);
 		auto stopUnthreaded = high_resolution_clock::now();
 		auto durationUnthreaded = duration_cast<milliseconds>(stopUnthreaded - startUnthreaded);
-		cout << durationUnthreaded.count() << " miliseconds to create popluation - unthreaded " << endl;
+		cout << endl << durationUnthreaded.count() << " miliseconds to create initial popluation - unthreaded " << endl;
 
 		auto startThreaded = high_resolution_clock::now();
 		population = mathOp.create_pop_threaded(POPULATION_SIZE, TARGET);
 		auto stopThreaded = high_resolution_clock::now();
 		auto durationThreaded = duration_cast<milliseconds>(stopThreaded - startThreaded);
-		cout << durationThreaded.count() << " miliseconds to create popluation - threaded " << endl;
+		cout << durationThreaded.count() << " miliseconds to create initial popluation - threaded " << endl << endl;
+
+		auto startUnthreadedTwo = high_resolution_clock::now();
+		mathOp.findFinal_unthreaded(population, POPULATION_SIZE, TARGET);
+		auto stopUnthreadedTwo = high_resolution_clock::now();
+		auto durationUnthreadedTwo = duration_cast<milliseconds>(stopUnthreadedTwo - startUnthreadedTwo);
+		cout << durationUnthreadedTwo.count() << " miliseconds to evolve to target string - unthreaded " << endl << endl;
+
+		auto startThreadedTwo = high_resolution_clock::now();
+		mathOp.findFinal_threaded(population, POPULATION_SIZE, TARGET);
+		auto stopThreadedTwo = high_resolution_clock::now();
+		auto durationThreadedTwo = duration_cast<milliseconds>(stopThreadedTwo - startThreadedTwo);
+		cout << durationThreadedTwo.count() << " miliseconds to evolve to target string - threaded " << endl << endl;
+
+		cout << "Total time for unthreaded - " << durationUnthreaded.count() + durationUnthreadedTwo.count() << " miliseconds" << endl;
+		cout << "Total time for threaded - " << durationThreaded.count() + durationThreadedTwo.count() << " miliseconds" << endl;
+		cout << "Threaded improvement over unthreaded - " << (((float) (durationUnthreaded.count() + durationUnthreadedTwo.count()) - (float) (durationThreaded.count() + durationThreadedTwo.count())) / (float) (durationUnthreaded.count() + durationUnthreadedTwo.count())) * 100 << "%" << endl;
 	}
 	else if (compare == 1)
 	{
@@ -62,72 +64,30 @@ int main()
 		population = mathOp.create_pop_threaded(POPULATION_SIZE, TARGET);
 		auto stopThreaded = high_resolution_clock::now();
 		auto durationThreaded = duration_cast<milliseconds>(stopThreaded - startThreaded);
-		cout << durationThreaded.count() << " miliseconds to create popluation - threaded " << endl;
+		cout << endl << durationThreaded.count() << " miliseconds to create popluation - threaded " << endl << endl;
+
+		auto startThreadedTwo = high_resolution_clock::now();
+		mathOp.findFinal_threaded(population, POPULATION_SIZE, TARGET);
+		auto stopThreadedTwo = high_resolution_clock::now();
+		auto durationThreadedTwo = duration_cast<milliseconds>(stopThreadedTwo - startThreadedTwo);
+		cout << durationThreadedTwo.count() << " miliseconds to evolve to target string - threaded " << endl;
 	}
 	else
 	{
+		vector<int> vecOne{ 1, 2, 3 };
+		vector<int> vecTwo{ 4, 5, 6 };
+		vector<int> vecThree{ 7, 8, 9 };
+
+		vecOne.insert(vecOne.end(), vecTwo.begin(), vecTwo.end());
+		vecOne.insert(vecOne.end(), vecThree.begin(), vecThree.end());
+
+		for (int i = 0; i < vecOne.size(); ++i)
+		{
+			cout << vecOne.at(i) << ", ";
+		}
+
 		cout << "I told you to press 0 or 1";
 	}
 
-	bool found = false;
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// Looking for the final string
-	while (!found)
-	{
-		// Sort population by fitness score
-		sort(population.begin(), population.end());
-
-		// If the individual having lowest fitness score ie. 0 then we know that we have reached to the target and break the loop 
-		if (population[0].getFitness() <= 0)
-		{
-			found = true;
-			break;
-		}
-
-		// Otherwise generate new offsprings for new generation 
-		vector<individual> new_generation;
-
-		// Perform Elitism, that means 10% of fittest population goes to the next generation 
-		int s = (10 * POPULATION_SIZE) / 100;
-		for (int i = 0; i < s; i++)
-		{
-			new_generation.push_back(population[i]);
-		}
-
-		// From 50% of fittest population, Individuals will mate to produce offspring 
-		s = (90 * POPULATION_SIZE) / 100;
-		for (int i = 0; i < s; i++)
-		{
-			int len = population.size();
-			int r = mathOp.random_num(0, 50);
-			individual parent1 = population[r];
-			r = mathOp.random_num(0, 50);
-			individual parent2 = population[r];
-			individual offspring = parent1.mate(parent2, TARGET);
-			new_generation.push_back(offspring);
-		}
-
-		population = new_generation;
-		cout << "Generation: " << generation << "\t";
-		cout << "String: " << population[0].getChromosome() << "\t";
-		cout << "Fitness: " << population[0].getFitness() << "\n";
-
-		generation++;
-	}
-
-	cout << "Generation: " << generation << "\t";
-	cout << "String: " << population[0].getChromosome() << "\t";
-	cout << "Fitness: " << population[0].getFitness() << "\n";
+	
 }
